@@ -4,7 +4,7 @@ class OpensslAT10 < Formula
   url "https://www.openssl.org/source/openssl-1.0.0.tar.gz"
   mirror "https://dl.bintray.com/homebrew/mirror/openssl@1.0--1.0.0.tar.gz"
   mirror "https://www.mirrorservice.org/sites/ftp.openssl.org/source/openssl-1.0.0.tar.gz"
-  sha256 "1e3a91bc1f9dfce01af26026f856e064eab4c8ee0a8f457b5ae30b40b8b711f2"
+  sha256 "1bbf9afc5a6215121ac094147d0a84178294fe4c3d0a231731038fd3717ba7ca"
   version_scheme 1
 
   bottle do
