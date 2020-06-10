@@ -3,7 +3,7 @@ class PhpAT72 < Formula
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
   url "http://127.0.0.1/static/php-7.2.29.tar.gz"
-  sha256 "ea5c96309394a03a38828cc182058be0c09dde1f00f35809622c2d05c50ee890"
+#   sha256 "ea5c96309394a03a38828cc182058be0c09dde1f00f35809622c2d05c50ee890"
 # 
 #   bottle do
 #     sha256 "1af2da199898a98788f89bcf0f83fce354bda950bec306504d294406dfec9129" => :catalina
@@ -57,6 +57,7 @@ class PhpAT72 < Formula
     ENV.cxx11
 
     config_path = etc/"php/#{php_version}"
+    puts config_path
 
     # Prevent homebrew from harcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
@@ -64,10 +65,10 @@ class PhpAT72 < Formula
     # Each extension that is built on Mojave needs a direct reference to the
     # sdk path or it won't find the headers
     headers_path = "=#{MacOS.sdk_path_if_needed}/usr"
-
+    
     args = %W[
       --prefix=#{prefix}
-      --localstatedir=#{var}
+      --localstatedir=#{var}/php/#{php_version}/
       --sysconfdir=#{config_path}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
@@ -82,7 +83,6 @@ class PhpAT72 < Formula
       --enable-sockets
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{Formula["curl"].opt_prefix}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
@@ -94,7 +94,7 @@ class PhpAT72 < Formula
       --with-libxml-dir#{headers_path}
       --with-libzip
       --with-mhash#{headers_path}
-      --with-mysql-sock=/usr/local/var/run/mysql.sock
+      --with-mysql-sock=#{var}/mysql/run/mysqld.sock
       --with-mysqli=mysqlnd
       --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
       --with-pdo-mysql=mysqlnd
@@ -133,14 +133,15 @@ class PhpAT72 < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php-fpm.log").exist?
-      (var/"log").mkpath
-      touch var/"log/php-fpm.log"
+    unless (var/"php/#{php_version}/log/php-fpm.log").exist?
+      (var/"php/#{php_version}/log").mkpath
+      touch var/"php/#{php_version}/log/php-fpm.log"
     end
   end
 
   def post_install
 
+    (var/"php/#{php_version}/run").mkpath
     # Custom location for extensions installed via pecl
     pecl_path = HOMEBREW_PREFIX/"lib/php/pecl"
     ln_s pecl_path, prefix/"pecl" unless (prefix/"pecl").exist?
@@ -200,9 +201,9 @@ class PhpAT72 < Formula
           <key>RunAtLoad</key>
           <true/>
           <key>WorkingDirectory</key>
-          <string>#{var}/run/</string>
+          <string>#{var}/php/#{php_version}/run/</string>
           <key>StandardErrorPath</key>
-          <string>#{var}/log/php-fpm.log</string>
+          <string>#{var}/php/#{php_version}/log/php-fpm.log</string>
         </dict>
       </plist>
     EOS
@@ -242,7 +243,8 @@ class PhpAT72 < Formula
         [global]
         daemonize=no
         [www]
-        listen = 127.0.0.1:#{port_fpm}
+        ;listen = 127.0.0.1:#{port_fpm}
+        listen = #{var}/php/#{php_version}/run/php-fpm.sock
         pm = dynamic
         pm.max_children = 5
         pm.start_servers = 2

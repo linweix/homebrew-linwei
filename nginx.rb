@@ -3,15 +3,7 @@ class Nginx < Formula
   homepage "https://nginx.org/"
   # Use "mainline" releases only (odd minor version number), not "stable"
   # See https://www.nginx.com/blog/nginx-1-12-1-13-released/ for why
-  url "http://127.0.0.1/static/nginx-1.16.1.tar.gz"
-  sha256 "f11c2a6dd1d3515736f0324857957db2de98be862461b5a542a3ac6188dbe32b"
-  head "https://hg.nginx.org/nginx/", :using => :hg
-
-  bottle do
-    sha256 "bbfea4efeecb097256a93ccedfe592ed6fc3a3d8d7cb348ea8ef0dc11052c866" => :catalina
-    sha256 "d96a65f612fba7bd7982fadb2469b965dfc9d406c948c9a15c6407d22b64f510" => :mojave
-    sha256 "865acfbcf15641757a278127cb3a70ed500f3220b4708e10ecafc4f87192016a" => :high_sierra
-  end
+  url "http://nginx.org/download/nginx-1.18.0.tar.gz"
 
   depends_on "openssl@1.1"
   depends_on "pcre"
@@ -39,15 +31,15 @@ class Nginx < Formula
       --with-cc-opt=#{cc_opt}
       --with-ld-opt=#{ld_opt}
       --conf-path=#{etc}/nginx/nginx.conf
-      --pid-path=#{var}/run/nginx.pid
-      --lock-path=#{var}/run/nginx.lock
-      --http-client-body-temp-path=#{var}/run/nginx/client_body_temp
-      --http-proxy-temp-path=#{var}/run/nginx/proxy_temp
-      --http-fastcgi-temp-path=#{var}/run/nginx/fastcgi_temp
-      --http-uwsgi-temp-path=#{var}/run/nginx/uwsgi_temp
-      --http-scgi-temp-path=#{var}/run/nginx/scgi_temp
-      --http-log-path=#{var}/log/nginx/access.log
-      --error-log-path=#{var}/log/nginx/error.log
+      --pid-path=#{var}/nginx/run/nginx.pid
+      --lock-path=#{var}/nginx/run/nginx.lock
+      --http-client-body-temp-path=#{var}/nginx/run/client_body_temp
+      --http-proxy-temp-path=#{var}/nginx/run/proxy_temp
+      --http-fastcgi-temp-path=#{var}/nginx/run/fastcgi_temp
+      --http-uwsgi-temp-path=#{var}/nginx/run/uwsgi_temp
+      --http-scgi-temp-path=#{var}/nginx/run/scgi_temp
+      --http-log-path=#{var}/nginx/log/access.log
+      --error-log-path=#{var}/nginx/log/error.log
       --with-compat
       --with-debug
       --with-http_addition_module
@@ -95,13 +87,13 @@ class Nginx < Formula
 
   def post_install
     (etc/"nginx/servers").mkpath
-    (var/"run/nginx").mkpath
+    (var/"nginx/run").mkpath
 
     # nginx's docroot is #{prefix}/html, this isn't useful, so we symlink it
     # to #{HOMEBREW_PREFIX}/var/www. The reason we symlink instead of patching
     # is so the user can redirect it easily to something else if they choose.
     html = prefix/"html"
-    dst = var/"www"
+    dst = var/"nginx/www"
 
     if dst.exist?
       html.rmtree
@@ -122,7 +114,7 @@ class Nginx < Formula
 
   def caveats
     <<~EOS
-      Docroot is: #{var}/www
+      Docroot is: #{var}/nginx/www
 
       The default port has been set in #{etc}/nginx/nginx.conf to 8080 so that
       nginx can run without sudo.
@@ -160,7 +152,7 @@ class Nginx < Formula
 
   test do
     (testpath/"nginx.conf").write <<~EOS
-      worker_processes 4;
+      worker_processes auto;
       error_log #{testpath}/error.log;
       pid #{testpath}/nginx.pid;
 
