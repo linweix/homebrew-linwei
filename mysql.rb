@@ -1,7 +1,7 @@
 class Mysql < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/5.7/en/"
-  url "http://127.0.0.1/static/mysql-boost-5.7.29.tar.gz"
+  url "http://linwein.gitee.io/static/mysql-boost-5.7.31.tar.gz"
 #   sha256 "00f514124de2bad1ba7b380cbbd46e316cae7fc7bc3a5621456cabf352f27978"
 # 
 #   bottle do
