@@ -3,21 +3,7 @@ class Nginx < Formula
   homepage "https://nginx.org/"
   # Use "mainline" releases only (odd minor version number), not "stable"
   # See https://www.nginx.com/blog/nginx-1-12-1-13-released/ for why
-  url "http://linwein.gitee.io/root/nginx-1.18.0.tar.gz"
-  sha256 "4c373e7ab5bf91d34a4f11a0c9496561061ba5eee6020db272a17a7228d35f99"
-  license "BSD-2-Clause"
-  head "https://hg.nginx.org/nginx/", using: :hg
-
-  livecheck do
-    url :homepage
-    regex(%r{nginx[._-]v?(\d+(?:\.\d+)+)</a>\nmainline version has been released}i)
-  end
-
-  bottle do
-    sha256 "4642d6fefcdda58a88085a85f44c8ab050006249107aea3865379d0b8c2f7663" => :catalina
-    sha256 "e1e69396a87602a769b12fc90a150b09354120c78d3d3eaeebe625e54ff4902e" => :mojave
-    sha256 "7725a0a0baf20219902c402b7057c80ef879fa5002cc653678bd5ddfae92e043" => :high_sierra
-  end
+  url "http://nginx.org/download/nginx-1.18.0.tar.gz"
 
   depends_on "openssl@1.1"
   depends_on "pcre"
@@ -45,15 +31,15 @@ class Nginx < Formula
       --with-cc-opt=#{cc_opt}
       --with-ld-opt=#{ld_opt}
       --conf-path=#{etc}/nginx/nginx.conf
-      --pid-path=#{var}/run/nginx.pid
-      --lock-path=#{var}/run/nginx.lock
-      --http-client-body-temp-path=#{var}/run/nginx/client_body_temp
-      --http-proxy-temp-path=#{var}/run/nginx/proxy_temp
-      --http-fastcgi-temp-path=#{var}/run/nginx/fastcgi_temp
-      --http-uwsgi-temp-path=#{var}/run/nginx/uwsgi_temp
-      --http-scgi-temp-path=#{var}/run/nginx/scgi_temp
-      --http-log-path=#{var}/log/nginx/access.log
-      --error-log-path=#{var}/log/nginx/error.log
+      --pid-path=#{var}/nginx/run/nginx.pid
+      --lock-path=#{var}/nginx/run/nginx.lock
+      --http-client-body-temp-path=#{var}/nginx/run/client_body_temp
+      --http-proxy-temp-path=#{var}/nginx/run/proxy_temp
+      --http-fastcgi-temp-path=#{var}/nginx/run/fastcgi_temp
+      --http-uwsgi-temp-path=#{var}/nginx/run/uwsgi_temp
+      --http-scgi-temp-path=#{var}/nginx/run/scgi_temp
+      --http-log-path=#{var}/nginx/log/access.log
+      --error-log-path=#{var}/nginx/log/error.log
       --with-compat
       --with-debug
       --with-http_addition_module
@@ -101,13 +87,13 @@ class Nginx < Formula
 
   def post_install
     (etc/"nginx/servers").mkpath
-    (var/"run/nginx").mkpath
+    (var/"nginx/run").mkpath
 
     # nginx's docroot is #{prefix}/html, this isn't useful, so we symlink it
     # to #{HOMEBREW_PREFIX}/var/www. The reason we symlink instead of patching
     # is so the user can redirect it easily to something else if they choose.
     html = prefix/"html"
-    dst = var/"www"
+    dst = var/"nginx/www"
 
     if dst.exist?
       html.rmtree
@@ -128,7 +114,7 @@ class Nginx < Formula
 
   def caveats
     <<~EOS
-      Docroot is: #{var}/www
+      Docroot is: #{var}/nginx/www
 
       The default port has been set in #{etc}/nginx/nginx.conf to 8080 so that
       nginx can run without sudo.
@@ -137,7 +123,7 @@ class Nginx < Formula
     EOS
   end
 
-  plist_options manual: "nginx"
+  plist_options :manual => "nginx"
 
   def plist
     <<~EOS
@@ -166,7 +152,7 @@ class Nginx < Formula
 
   test do
     (testpath/"nginx.conf").write <<~EOS
-      worker_processes 4;
+      worker_processes auto;
       error_log #{testpath}/error.log;
       pid #{testpath}/nginx.pid;
 
