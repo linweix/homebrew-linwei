@@ -409,7 +409,7 @@ class PhpAT73 < Formula
       end
     end
   end
-#end
+end
 
 __END__
 diff --git a/acinclude.m4 b/acinclude.m4
