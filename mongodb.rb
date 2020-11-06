@@ -4,8 +4,8 @@ class Mongodb < Formula
 
   # frozen_string_literal: true
 
-  url "http://127.0.0.1/static/mongodb-macos-x86_64-4.2.5.tgz"
-#   sha256 "f6436b5c981618fd54ccbc4c07ec64d3c64de680c61b4af99c3f55235fb4a3e0"
+  url "https://fastdl.mongodb.org/osx/mongodb-macos-x86_64-4.2.9.tgz"
+  sha256 "57ce138e19a0aedfa1a5193b4ac6845436f49233e1b86eef4930fc50f3b5ed7e"
 
   bottle :unneeded
 
@@ -16,27 +16,26 @@ class Mongodb < Formula
   end
 
   def post_install
-    %w[mongodb/run/ mongodb/log/ mongodb/data/].each { |p| (var/p).mkpath }
-    if !(File.exist?((etc/"mongodb/mongod.conf"))) then
-      (etc/"mongodb/mongod.conf").write mongodb_conf
+    (var/"mongodb").mkpath
+    (var/"log/mongodb").mkpath
+    if !(File.exist?((etc/"mongod.conf"))) then
+      (etc/"mongod.conf").write mongodb_conf
     end
   end
 
   def mongodb_conf; <<~EOS
-    processManagement:
-      pidFilePath: #{var}/mongodb/run/mongod.pid
     systemLog:
       destination: file
-      path: #{var}/mongodb/log/mongod.log
+      path: #{var}/log/mongodb/mongo.log
       logAppend: true
     storage:
-      dbPath: #{var}/mongodb/data/
+      dbPath: #{var}/mongodb
     net:
       bindIp: 127.0.0.1
   EOS
   end
 
-  plist_options :manual => "mongod --config #{HOMEBREW_PREFIX}/etc/mongodb/mongod.conf"
+  plist_options :manual => "mongod --config #{HOMEBREW_PREFIX}/etc/mongod.conf"
 
   def plist; <<~EOS
     <?xml version="1.0" encoding="UTF-8"?>
@@ -49,7 +48,7 @@ class Mongodb < Formula
       <array>
         <string>#{opt_bin}/mongod</string>
         <string>--config</string>
-        <string>#{etc}/mongodb/mongod.conf</string>
+        <string>#{etc}/mongod.conf</string>
       </array>
       <key>RunAtLoad</key>
       <true/>
@@ -58,9 +57,9 @@ class Mongodb < Formula
       <key>WorkingDirectory</key>
       <string>#{HOMEBREW_PREFIX}</string>
       <key>StandardErrorPath</key>
-      <string>#{var}/mongodb/log/output.log</string>
+      <string>#{var}/log/mongodb/output.log</string>
       <key>StandardOutPath</key>
-      <string>#{var}/mongodb/log/output.log</string>
+      <string>#{var}/log/mongodb/output.log</string>
       <key>HardResourceLimits</key>
       <dict>
         <key>NumberOfFiles</key>

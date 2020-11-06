@@ -1,33 +1,51 @@
-class PhpAT72 < Formula
+class Php < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
-  url "http://linwein.gitee.io/root/php-7.2.29.tar.gz"
-  mirror "http://linwein.gitee.io/root/php-7.2.29.tar.gz"
-  sha256 "ea5c96309394a03a38828cc182058be0c09dde1f00f35809622c2d05c50ee890"
+  url "https://www.php.net/distributions/php-7.3.24.tar.xz"
+  mirror "https://fossies.org/linux/www/php-7.3.24.tar.xz"
+  sha256 "78b0b417a147ab7572c874334d11654e3c61ec5b3f2170098e5db02fb0c89888"
   license "PHP-3.01"
 
-#   bottle do
-#     sha256 "b86f79fa92eee0dba80c2a5fdc958613a013db6e9d4f9a902e41afe3f3a10561" => :catalina
-#     sha256 "2c9d66ca8e40ccfd9f58eed7775a248d061b539551c9cdc105c4e80df5be48d0" => :mojave
-#     sha256 "88bdd9f91682b8cd1cd47214976cf443a7e22485e361f8036e54c6d2b63ed37d" => :high_sierra
-#   end
+  bottle do
+    sha256 "29b42a38b6bedf97c76862dbb62529204f37722023cefc5f003d6ed9a80661f8" => :catalina
+    sha256 "5b6a98cd74dcba4b24270849e090507f9de3a73e5d2aacd840ee9bf51ec1f781" => :mojave
+    sha256 "d04aff49e077579a8161480a6f7cbc1196570cda5097b795a2b1a3d7911697ac" => :high_sierra
+  end
 
   keg_only :versioned_formula
 
-  deprecate! date: "2020-11-30", because: :versioned_formula
+  deprecate! date: "2021-12-06", because: :versioned_formula
 
-#   depends_on "pkg-config" => :build
+#   depends_on "httpd" => [:build, :test]
+  depends_on "pkg-config" => :build
+  depends_on "xz" => :build
+#   depends_on "apr"
+#   depends_on "apr-util"
+  depends_on "argon2"
+  depends_on "aspell"
   depends_on "autoconf"
+  depends_on "curl-openssl"
+  depends_on "freetds"
   depends_on "freetype"
   depends_on "gettext"
+  depends_on "glib"
+  depends_on "gmp"
+  depends_on "icu4c"
   depends_on "jpeg"
   depends_on "libpng"
+  depends_on "libpq"
+  depends_on "libsodium"
   depends_on "libzip"
+  depends_on "openldap"
   depends_on "openssl@1.1"
+  depends_on "sqlite"
+  depends_on "tidy-html5"
+  depends_on "unixodbc"
   depends_on "webp"
 
   uses_from_macos "bzip2"
+  uses_from_macos "libedit"
   uses_from_macos "libxml2"
   uses_from_macos "libxslt"
   uses_from_macos "zlib"
@@ -43,16 +61,29 @@ class PhpAT72 < Formula
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
+#     inreplace "configure" do |s|
+#       s.gsub! "APACHE_THREADED_MPM=`$APXS_HTTPD -V | grep 'threaded:.*yes'`",
+#               "APACHE_THREADED_MPM="
+#       s.gsub! "APXS_LIBEXECDIR='$(INSTALL_ROOT)'`$APXS -q LIBEXECDIR`",
+#               "APXS_LIBEXECDIR='$(INSTALL_ROOT)#{lib}/httpd/modules'"
+#       s.gsub! "-z `$APXS -q SYSCONFDIR`",
+#               "-z ''"
+# 
+#       # apxs will interpolate the @ in the versioned prefix: https://bz.apache.org/bugzilla/show_bug.cgi?id=61944
+#       s.gsub! "LIBEXECDIR='$APXS_LIBEXECDIR'",
+#       "LIBEXECDIR='" + "#{lib}/httpd/modules".gsub("@", "\\@") + "'"
+#     end
+
     # Update error message in apache sapi to better explain the requirements
     # of using Apache http in combination with php if the non-compatible MPM
     # has been selected. Homebrew has chosen not to support being able to
     # compile a thread safe version of PHP and therefore it is not
     # possible to recompile as suggested in the original message
-    inreplace "sapi/apache2handler/sapi_apache2.c",
-              "You need to recompile PHP.",
-              "Homebrew PHP does not support a thread-safe php binary. "\
-              "To use the PHP apache sapi please change "\
-              "your httpd config to use the prefork MPM"
+#     inreplace "sapi/apache2handler/sapi_apache2.c",
+#               "You need to recompile PHP.",
+#               "Homebrew PHP does not support a thread-safe php binary. "\
+#               "To use the PHP apache sapi please change "\
+#               "your httpd config to use the prefork MPM"
 
     inreplace "sapi/fpm/php-fpm.conf.in", ";daemonize = yes", "daemonize = no"
 
@@ -76,37 +107,72 @@ class PhpAT72 < Formula
       --sysconfdir=#{config_path}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
+      --with-pear=#{pkgshare}/pear
       --enable-bcmath
+      --enable-calendar
+      --enable-dba
+      --enable-dtrace
       --enable-exif
+      --enable-ftp
       --enable-fpm
+      --enable-intl
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
       --enable-opcache-file
+      --enable-pcntl
+      --enable-phpdbg
+      --enable-phpdbg-readline
+      --enable-phpdbg-webhelper
+      --enable-shmop
       --enable-soap
       --enable-sockets
+      --enable-sysvmsg
+      --enable-sysvsem
+      --enable-sysvshm
+      --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
+      --with-curl=#{Formula["curl-openssl"].opt_prefix}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd
       --with-gettext=#{Formula["gettext"].opt_prefix}
+      --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
       --with-icu-dir=#{Formula["icu4c"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
+      --with-kerberos#{headers_path}
+      --with-layout=GNU
+      --with-ldap=#{Formula["openldap"].opt_prefix}
+      --with-ldap-sasl#{headers_path}
       --with-libxml-dir#{headers_path}
+      --with-libedit#{headers_path}
       --with-libzip
       --with-mhash#{headers_path}
-      --with-mysql-sock=#{var}/mysql/run/mysqld.sock
+      --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
+      --with-ndbm#{headers_path}
       --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
+      --with-password-argon2=#{Formula["argon2"].opt_prefix}
+      --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
+      --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}
+      --with-pdo-pgsql=#{Formula["libpq"].opt_prefix}
+      --with-pdo-sqlite=#{Formula["sqlite"].opt_prefix}
+      --with-pgsql=#{Formula["libpq"].opt_prefix}
+      --with-pic
       --with-png-dir=#{Formula["libpng"].opt_prefix}
+      --with-pspell=#{Formula["aspell"].opt_prefix}
+      --with-sodium=#{Formula["libsodium"].opt_prefix}
+      --with-sqlite3=#{Formula["sqlite"].opt_prefix}
+      --with-tidy=#{Formula["tidy-html5"].opt_prefix}
+      --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-webp-dir=#{Formula["webp"].opt_prefix}
+      --with-xmlrpc
+      --with-xsl#{headers_path}
       --with-zlib#{headers_path}
-      --disable-fileinfo
-      --disable-rpath
     ]
 
     system "./configure", *args
@@ -126,6 +192,11 @@ class PhpAT72 < Formula
       "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
     inreplace "php.ini-development", /; ?openssl\.capath=/,
       "openssl.capath = \"#{openssl.pkgetc}/certs\""
+
+    # php 7.3 known bug
+    # SO discussion: https://stackoverflow.com/a/53709484/791609
+    # bug report: https://bugs.php.net/bug.php?id=77260
+    inreplace "php.ini-development", ";pcre.jit=1", "pcre.jit=0"
 
     config_files = {
       "php.ini-development"   => "php.ini",
@@ -189,7 +260,6 @@ class PhpAT72 < Formula
       value.mkpath if /(?<!bin|man)_dir$/.match?(key)
       system bin/"pear", "config-set", key, value, "system"
     end
-    exit
 
     system bin/"pear", "update-channels"
 
@@ -209,6 +279,23 @@ class PhpAT72 < Formula
       end
     end
   end
+
+#   def caveats
+#     <<~EOS
+#       To enable PHP in Apache add the following to httpd.conf and restart Apache:
+#           LoadModule php7_module #{opt_lib}/httpd/modules/libphp7.so
+# 
+#           <FilesMatch \\.php$>
+#               SetHandler application/x-httpd-php
+#           </FilesMatch>
+# 
+#       Finally, check DirectoryIndex includes index.php
+#           DirectoryIndex index.php index.html
+# 
+#       The php.ini and php-fpm.ini file can be found in:
+#           #{etc}/php/#{version.major_minor}/
+#     EOS
+#   end
 
   plist_options manual: "php-fpm"
 
@@ -261,6 +348,27 @@ class PhpAT72 < Formula
         echo 'Hello world!' . PHP_EOL;
         var_dump(ldap_connect());
       EOS
+#       main_config = <<~EOS
+#         Listen #{port}
+#         ServerName localhost:#{port}
+#         DocumentRoot "#{testpath}"
+#         ErrorLog "#{testpath}/httpd-error.log"
+#         ServerRoot "#{Formula["httpd"].opt_prefix}"
+#         PidFile "#{testpath}/httpd.pid"
+#         LoadModule authz_core_module lib/httpd/modules/mod_authz_core.so
+#         LoadModule unixd_module lib/httpd/modules/mod_unixd.so
+#         LoadModule dir_module lib/httpd/modules/mod_dir.so
+#         DirectoryIndex index.php
+#       EOS
+# 
+#       (testpath/"httpd.conf").write <<~EOS
+#         #{main_config}
+#         LoadModule mpm_prefork_module lib/httpd/modules/mod_mpm_prefork.so
+#         LoadModule php7_module #{lib}/httpd/modules/libphp7.so
+#         <FilesMatch \\.(php|phar)$>
+#           SetHandler application/x-httpd-php
+#         </FilesMatch>
+#       EOS
 
       (testpath/"fpm.conf").write <<~EOS
         [global]
@@ -274,6 +382,21 @@ class PhpAT72 < Formula
         pm.max_spare_servers = 3
       EOS
 
+#       (testpath/"httpd-fpm.conf").write <<~EOS
+#         #{main_config}
+#         LoadModule mpm_event_module lib/httpd/modules/mod_mpm_event.so
+#         LoadModule proxy_module lib/httpd/modules/mod_proxy.so
+#         LoadModule proxy_fcgi_module lib/httpd/modules/mod_proxy_fcgi.so
+#         <FilesMatch \\.(php|phar)$>
+#           SetHandler "proxy:fcgi://127.0.0.1:#{port_fpm}"
+#         </FilesMatch>
+#       EOS
+# 
+#       pid = fork do
+#         exec Formula["httpd"].opt_bin/"httpd", "-X", "-f", "#{testpath}/httpd.conf"
+#       end
+#       sleep 3
+
       assert_match expected_output, shell_output("curl -s 127.0.0.1:#{port}")
 
       Process.kill("TERM", pid)
@@ -282,6 +405,9 @@ class PhpAT72 < Formula
       fpm_pid = fork do
         exec sbin/"php-fpm", "-y", "fpm.conf"
       end
+#       pid = fork do
+#         exec Formula["httpd"].opt_bin/"httpd", "-X", "-f", "#{testpath}/httpd-fpm.conf"
+#       end
       sleep 3
 
       assert_match expected_output, shell_output("curl -s 127.0.0.1:#{port}")

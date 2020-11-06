@@ -1,14 +1,20 @@
 class Mysql < Formula
   desc "Open source relational database management system"
   homepage "https://dev.mysql.com/doc/refman/5.7/en/"
-  url "http://linwein.gitee.io/static/mysql-boost-5.7.31.tar.gz"
-#   sha256 "00f514124de2bad1ba7b380cbbd46e316cae7fc7bc3a5621456cabf352f27978"
-# 
-#   bottle do
-#     sha256 "bf0cdc294df996455c8abad3e03b6691f2145a4036085ad2570ec6c993e6b9c0" => :catalina
-#     sha256 "88cf1f9f07a84694654f790507da937909eee1b16a0e47d473b2fc45e19c9ec1" => :mojave
-#     sha256 "b4bf218448de13e40027117d3813d9a7a72d3205deb9658da16b85f74ad390af" => :high_sierra
-#   end
+  url "https://mirrors.tuna.tsinghua.edu.cn/mysql/downloads/MySQL-5.7/mysql-boost-5.7.32.tar.gz"
+  sha256 "9a8a04a2b0116ccff9a8d8aace07aaeaacf47329b701c5dfa9fa4351d3f1933b"
+  license "GPL-2.0"
+
+  livecheck do
+    url "https://dev.mysql.com/downloads/mysql/5.7.html"
+    regex(/href=.*?mysql[._-]v?(\d+.\d+.\d+)-/i)
+  end
+
+  bottle do
+    sha256 "b941e1c492c340e737423badddd648b267e33a8cdc865f4f2935001d5f8a6e7d" => :catalina
+    sha256 "d0a660aff0c0919206fad22432af8174985035b40889fddb15c8f4aa3c0b2b69" => :mojave
+    sha256 "46ecc776de40f0da06a82ad0018d33c6fd27a9924ea4df8ddd17970c06fa52f6" => :high_sierra
+  end
 
   keg_only :versioned_formula
 
@@ -17,16 +23,20 @@ class Mysql < Formula
 
   uses_from_macos "libedit"
 
+  on_linux do
+    depends_on "pkg-config" => :build
+  end
+
   def datadir
-    var/"mysql/data/"
+    var/"mysql"
   end
 
   def install
     # -DINSTALL_* are relative to `CMAKE_INSTALL_PREFIX` (`prefix`)
     args = %W[
       -DCOMPILATION_COMMENT=Homebrew
-      -DDEFAULT_CHARSET=utf8mb4
-      -DDEFAULT_COLLATION=utf8mb4_general_ci
+      -DDEFAULT_CHARSET=utf8
+      -DDEFAULT_COLLATION=utf8_general_ci
       -DINSTALL_DOCDIR=share/doc/#{name}
       -DINSTALL_INCLUDEDIR=include/mysql
       -DINSTALL_INFODIR=share/info
@@ -34,9 +44,7 @@ class Mysql < Formula
       -DINSTALL_MYSQLSHAREDIR=share/mysql
       -DINSTALL_PLUGINDIR=lib/plugin
       -DMYSQL_DATADIR=#{datadir}
-      -DMYSQL_TCP_PORT=3306
-      -DMYSQL_UNIX_ADDR=#{var}/mysql/run/mysqld.sock
-      -DSYSCONFDIR=#{etc}/mysql/
+      -DSYSCONFDIR=#{etc}
       -DWITH_BOOST=boost
       -DWITH_EDITLINE=system
       -DWITH_SSL=yes
@@ -70,29 +78,15 @@ class Mysql < Formula
     # Install my.cnf that binds to 127.0.0.1 by default
     (buildpath/"my.cnf").write <<~EOS
       # Default Homebrew MySQL server config
-      
       [mysqld]
       # Only allow connections from localhost
       bind-address = 127.0.0.1
-      log_timestamps = SYSTEM
-      key_buffer_size = 2048M
-      max_allowed_packet = 1G
-      sql_mode=STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-      pid-file = #{var}/mysql/run/mysqld.pid
-      log-error = #{var}/mysql/log/error.log
-      explicit_defaults_for_timestamp = true
-      lower_case_table_names = 1
-      
-      [client]
-      default_character_set=utf8mb4
     EOS
-    (etc/"mysql/").mkpath
-    (etc/"mysql/").install "my.cnf"
+    etc.install "my.cnf"
   end
 
   def post_install
     # Make sure the datadir exists
-    %w[mysql/run/ mysql/log/].each { |p| (var/p).mkpath }
     datadir.mkpath
     unless (datadir/"mysql/general_log.CSM").exist?
       ENV["TMPDIR"] = nil
@@ -121,7 +115,7 @@ class Mysql < Formula
     s
   end
 
-  plist_options :manual => "#{HOMEBREW_PREFIX}/opt/mysql/bin/mysql.server start"
+  plist_options manual: "#{HOMEBREW_PREFIX}/opt/mysql/bin/mysql.server start"
 
   def plist
     <<~EOS
@@ -153,12 +147,13 @@ class Mysql < Formula
     system bin/"mysqld", "--initialize-insecure", "--user=#{ENV["USER"]}",
     "--basedir=#{prefix}", "--datadir=#{dir}", "--tmpdir=#{dir}"
 
+    port = free_port
     pid = fork do
-      exec bin/"mysqld", "--bind-address=127.0.0.1", "--datadir=#{dir}"
+      exec bin/"mysqld", "--bind-address=127.0.0.1", "--datadir=#{dir}", "--port=#{port}"
     end
     sleep 2
 
-    output = shell_output("curl 127.0.0.1:3306")
+    output = shell_output("curl 127.0.0.1:#{port}")
     output.force_encoding("ASCII-8BIT") if output.respond_to?(:force_encoding)
     assert_match version.to_s, output
   ensure
