@@ -1,33 +1,31 @@
-class Php < Formula
+class Php73 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
-  url "https://www.php.net/distributions/php-7.2.34.tar.xz"
-  mirror "https://fossies.org/linux/www/php-7.2.34.tar.xz"
-  sha256 "409e11bc6a2c18707dfc44bc61c820ddfd81e17481470f3405ee7822d8379903"
+  url "https://www.php.net/distributions/php-7.3.24.tar.xz"
+  mirror "https://fossies.org/linux/www/php-7.3.24.tar.xz"
+  sha256 "78b0b417a147ab7572c874334d11654e3c61ec5b3f2170098e5db02fb0c89888"
   license "PHP-3.01"
-  revision 1
 
   bottle do
-    sha256 big_sur:  "e39495f5389c97e3e3e1c2b0ea47832cdff5e5db25e671da0f918d0fc74a7137"
-    sha256 catalina: "0069df02b747f6e26b3e3ec5550cc83b96abd7858a6f53c6ff37f839d145fb71"
-    sha256 mojave:   "37be2c076029d9e1884c38166d3120be4ac93bd1db22cb3175d1894b830b73d1"
+    sha256 "29b42a38b6bedf97c76862dbb62529204f37722023cefc5f003d6ed9a80661f8" => :catalina
+    sha256 "5b6a98cd74dcba4b24270849e090507f9de3a73e5d2aacd840ee9bf51ec1f781" => :mojave
+    sha256 "d04aff49e077579a8161480a6f7cbc1196570cda5097b795a2b1a3d7911697ac" => :high_sierra
   end
 
   keg_only :versioned_formula
 
-  deprecate! date: "2020-11-30", because: :versioned_formula
+  deprecate! date: "2021-12-06", because: :versioned_formula
 
 #   depends_on "httpd" => [:build, :test]
   depends_on "pkg-config" => :build
   depends_on "xz" => :build
 #   depends_on "apr"
 #   depends_on "apr-util"
-  depends_on arch: :x86_64
   depends_on "argon2"
   depends_on "aspell"
   depends_on "autoconf"
-  depends_on "curl"
+  depends_on "curl-openssl"
   depends_on "freetds"
   depends_on "freetype"
   depends_on "gettext"
@@ -60,10 +58,6 @@ class Php < Formula
     # Ensure that libxml2 will be detected correctly in older MacOS
     ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :el_capitan || MacOS.version == :sierra
 
-    # Work around configure issues with Xcode 12
-    # See https://bugs.php.net/bug.php?id=80171
-    ENV.append "CFLAGS", "-Wno-implicit-function-declaration"
-
     # buildconf required due to system library linking bug patch
     system "./buildconf", "--force"
 
@@ -77,7 +71,7 @@ class Php < Formula
 # 
 #       # apxs will interpolate the @ in the versioned prefix: https://bz.apache.org/bugzilla/show_bug.cgi?id=61944
 #       s.gsub! "LIBEXECDIR='$APXS_LIBEXECDIR'",
-#               "LIBEXECDIR='" + "#{lib}/httpd/modules".gsub("@", "\\@") + "'"
+#       "LIBEXECDIR='" + "#{lib}/httpd/modules".gsub("@", "\\@") + "'"
 #     end
 
     # Update error message in apache sapi to better explain the requirements
@@ -100,7 +94,7 @@ class Php < Formula
     # Prevent system pear config from inhibiting pear install
     (config_path/"pear.conf").delete if (config_path/"pear.conf").exist?
 
-    # Prevent homebrew from hardcoding path to sed shim in phpize script
+    # Prevent homebrew from harcoding path to sed shim in phpize script
     ENV["lt_cv_path_SED"] = "sed"
 
     # Each extension that is built on Mojave needs a direct reference to the
@@ -139,7 +133,7 @@ class Php < Formula
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{Formula["curl"].opt_prefix}
+      --with-curl=#{Formula["curl-openssl"].opt_prefix}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
@@ -198,6 +192,11 @@ class Php < Formula
       "openssl.cafile = \"#{openssl.pkgetc}/cert.pem\""
     inreplace "php.ini-development", /; ?openssl\.capath=/,
       "openssl.capath = \"#{openssl.pkgetc}/certs\""
+
+    # php 7.3 known bug
+    # SO discussion: https://stackoverflow.com/a/53709484/791609
+    # bug report: https://bugs.php.net/bug.php?id=77260
+    inreplace "php.ini-development", ";pcre.jit=1", "pcre.jit=0"
 
     config_files = {
       "php.ini-development"   => "php.ini",
@@ -327,8 +326,8 @@ class Php < Formula
   end
 
   test do
-    assert_match(/^Zend OPcache$/, shell_output("#{bin}/php -i"),
-      "Zend OPCache extension not loaded")
+    assert_match /^Zend OPcache$/, shell_output("#{bin}/php -i"),
+      "Zend OPCache extension not loaded"
     # Test related to libxml2 and
     # https://github.com/Homebrew/homebrew-core/issues/28398
     assert_includes MachO::Tools.dylibs("#{bin}/php"),
@@ -337,8 +336,8 @@ class Php < Formula
     system "#{bin}/phpdbg", "-V"
     system "#{bin}/php-cgi", "-m"
     # Prevent SNMP extension to be added
-    assert_no_match(/^snmp$/, shell_output("#{bin}/php -m"),
-      "SNMP extension doesn't work reliably with Homebrew on High Sierra")
+    assert_no_match /^snmp$/, shell_output("#{bin}/php -m"),
+      "SNMP extension doesn't work reliably with Homebrew on High Sierra"
     begin
       port = free_port
       port_fpm = free_port

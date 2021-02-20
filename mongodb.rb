@@ -4,7 +4,7 @@ class Mongodb < Formula
 
   # frozen_string_literal: true
 
-  url "https://fastdl.mongodb.org/osx/mongodb-macos-x86_64-4.2.9.tgz"
+  url "http://127.0.0.1/mongodb-macos-x86_64-4.2.9.tgz"
   sha256 "57ce138e19a0aedfa1a5193b4ac6845436f49233e1b86eef4930fc50f3b5ed7e"
 
   bottle :unneeded
@@ -16,7 +16,7 @@ class Mongodb < Formula
   end
 
   def post_install
-    (var/"mongodb").mkpath
+    (var/"data/mongodb").mkpath
     (var/"log/mongodb").mkpath
     if !(File.exist?((etc/"mongod.conf"))) then
       (etc/"mongod.conf").write mongodb_conf
@@ -29,7 +29,7 @@ class Mongodb < Formula
       path: #{var}/log/mongodb/mongo.log
       logAppend: true
     storage:
-      dbPath: #{var}/mongodb
+      dbPath: #{var}/data/mongodb
     net:
       bindIp: 127.0.0.1
   EOS
