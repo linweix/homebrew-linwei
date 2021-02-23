@@ -20,30 +20,30 @@ class Php < Formula
 
 #   depends_on "httpd" => [:build, :test]
   depends_on "pkg-config" => :build
-  depends_on "xz" => :build
+#   depends_on "xz" => :build
 #   depends_on "apr"
 #   depends_on "apr-util"
   depends_on arch: :x86_64
-  depends_on "argon2"
-  depends_on "aspell"
+#   depends_on "argon2"
+#   depends_on "aspell"
   depends_on "autoconf"
-  depends_on "curl"
-  depends_on "freetds"
+#   depends_on "curl"
+#   depends_on "freetds"
   depends_on "freetype"
   depends_on "gettext"
-  depends_on "glib"
-  depends_on "gmp"
-  depends_on "icu4c"
+#   depends_on "glib"
+#   depends_on "gmp"
+#   depends_on "icu4c"
   depends_on "jpeg"
   depends_on "libpng"
-  depends_on "libpq"
-  depends_on "libsodium"
+#   depends_on "libpq"
+#   depends_on "libsodium"
   depends_on "libzip"
-  depends_on "openldap"
+#   depends_on "openldap"
   depends_on "openssl@1.1"
-  depends_on "sqlite"
-  depends_on "tidy-html5"
-  depends_on "unixodbc"
+#   depends_on "sqlite"
+#   depends_on "tidy-html5"
+#   depends_on "unixodbc"
   depends_on "webp"
 
   uses_from_macos "bzip2"
@@ -121,7 +121,6 @@ class Php < Formula
       --enable-exif
       --enable-ftp
       --enable-fpm
-      --enable-intl
       --enable-mbregex
       --enable-mbstring
       --enable-mysqlnd
@@ -134,25 +133,20 @@ class Php < Formula
       --enable-soap
       --enable-sockets
       --enable-sysvmsg
-      --enable-sysvsem
-      --enable-sysvshm
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{Formula["curl"].opt_prefix}
+      --with-curl
+      --with-curl-dir=#{headers_path}/include/curl
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
       --with-gd
       --with-gettext=#{Formula["gettext"].opt_prefix}
-      --with-gmp=#{Formula["gmp"].opt_prefix}
       --with-iconv#{headers_path}
-      --with-icu-dir=#{Formula["icu4c"].opt_prefix}
       --with-jpeg-dir=#{Formula["jpeg"].opt_prefix}
       --with-kerberos#{headers_path}
       --with-layout=GNU
-      --with-ldap=#{Formula["openldap"].opt_prefix}
-      --with-ldap-sasl#{headers_path}
       --with-libxml-dir#{headers_path}
       --with-libedit#{headers_path}
       --with-libzip
@@ -161,20 +155,9 @@ class Php < Formula
       --with-mysqli=mysqlnd
       --with-ndbm#{headers_path}
       --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
-      --with-password-argon2=#{Formula["argon2"].opt_prefix}
-      --with-pdo-dblib=#{Formula["freetds"].opt_prefix}
       --with-pdo-mysql=mysqlnd
-      --with-pdo-odbc=unixODBC,#{Formula["unixodbc"].opt_prefix}
-      --with-pdo-pgsql=#{Formula["libpq"].opt_prefix}
-      --with-pdo-sqlite=#{Formula["sqlite"].opt_prefix}
-      --with-pgsql=#{Formula["libpq"].opt_prefix}
       --with-pic
       --with-png-dir=#{Formula["libpng"].opt_prefix}
-      --with-pspell=#{Formula["aspell"].opt_prefix}
-      --with-sodium=#{Formula["libsodium"].opt_prefix}
-      --with-sqlite3=#{Formula["sqlite"].opt_prefix}
-      --with-tidy=#{Formula["tidy-html5"].opt_prefix}
-      --with-unixODBC=#{Formula["unixodbc"].opt_prefix}
       --with-webp-dir=#{Formula["webp"].opt_prefix}
       --with-xmlrpc
       --with-xsl#{headers_path}
