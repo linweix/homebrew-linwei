@@ -24,6 +24,7 @@ class Redis < Formula
     system "make", "install", "PREFIX=#{prefix}", "CC=#{ENV.cc}", "BUILD_TLS=yes"
 
     %w[run data/redis log].each { |p| (var/p).mkpath }
+    (etc/"redis/").mkpath
 
     # Fix up default conf file to match our paths
     inreplace "redis.conf" do |s|
@@ -32,11 +33,11 @@ class Redis < Formula
       s.sub!(/^bind .*$/, "bind 127.0.0.1 ::1")
     end
 
-    etc.install "redis.conf"
-    etc.install "sentinel.conf" => "redis-sentinel.conf"
+    (etc/"redis/").install "redis.conf"
+    (etc/"redis/").install "sentinel.conf" => "redis-sentinel.conf"
   end
 
-  plist_options manual: "redis-server #{HOMEBREW_PREFIX}/etc/redis.conf"
+  plist_options manual: "redis-server #{HOMEBREW_PREFIX}/etc/redis/redis.conf"
 
   def plist
     <<~EOS
@@ -54,7 +55,7 @@ class Redis < Formula
           <key>ProgramArguments</key>
           <array>
             <string>#{opt_bin}/redis-server</string>
-            <string>#{etc}/redis.conf</string>
+            <string>#{etc}/redis/redis.conf</string>
             <string>--daemonize no</string>
           </array>
           <key>RunAtLoad</key>
