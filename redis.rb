@@ -1,8 +1,8 @@
 class Redis < Formula
   desc "Persistent key-value database, with built-in net interface"
   homepage "https://redis.io/"
-  url "https://mirrors.huaweicloud.com/redis/redis-5.0.10.tar.gz"
-  sha256 "e30a5e7d1593a715cdda2a82deb90190816d06c9d1dc1ef5b36874878c683382"
+  url "https://mirrors.huaweicloud.com/redis/redis-5.0.12.tar.gz"
+  sha256 "7040eba5910f7c3d38f05ea5a1d88b480488215bdbd2e10ec70d18380108e31e"
   license "BSD-3-Clause"
   head "https://github.com/redis/redis.git", branch: "unstable"
 
