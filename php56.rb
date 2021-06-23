@@ -29,7 +29,7 @@ class Php56 < Formula
   depends_on "libpng"
 #   depends_on "libpq"
 #   depends_on "libtool"
-  depends_on "libzip"
+#   depends_on "libzip"
 #   depends_on "mcrypt"
 #   depends_on "openldap"
   depends_on "openssl"
@@ -121,8 +121,7 @@ class Php56 < Formula
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl
-      --with-curl-dir=#{headers_path}/include/curl
+      --with-curl=#{headers_path}/include/curl
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
@@ -134,7 +133,7 @@ class Php56 < Formula
       --with-layout=GNU
       --with-libedit#{headers_path}
       --with-libxml-dir#{headers_path}
-      --with-libzip
+      --with-libzip=#{Formula["libzip"].opt_prefix}
       --with-mhash#{headers_path}
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
