@@ -1,8 +1,8 @@
 class Php56 < Formula
   desc "General-purpose scripting language"
   homepage "https://secure.php.net/"
-  url "https://php.net/get/php-5.6.40.tar.xz/from/this/mirror"
-  sha256 "1369a51eee3995d7fbd1c5342e5cc917760e276d561595b6052b21ace2656d1c"
+  url "http://127.0.0.1/static/php-5.6.40.tar.gz"
+  sha256 "0ffe006ca0130e5f8e9ecc46d8d01d6973c7d30488981bad7865d37a890b3cb4"
 
 #   bottle do
 #     root_url "https://dl.bintray.com/exolnet/bottles-deprecated"
@@ -102,7 +102,8 @@ class Php56 < Formula
       --sysconfdir=#{config_path}
       --with-config-file-path=#{config_path}
       --with-config-file-scan-dir=#{config_path}/conf.d
-      --with-pear=#{pkgshare}/pear
+      --without-pear
+      --disable-phar
       --enable-bcmath
       --enable-calendar
       --enable-dba
@@ -121,7 +122,7 @@ class Php56 < Formula
       --enable-wddx
       --enable-zip
       --with-bz2#{headers_path}
-      --with-curl=#{headers_path}/include/curl
+      --with-curl#{headers_path}
       --with-fpm-user=_www
       --with-fpm-group=_www
       --with-freetype-dir=#{Formula["freetype"].opt_prefix}
@@ -139,7 +140,7 @@ class Php56 < Formula
       --with-mysqli=mysqlnd
       --with-mysql=mysqlnd
       --with-ndbm#{headers_path}
-      --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
+      --with-openssl-dir=/usr/local/Cellar/openssl@1.0/1.0.2u
       --with-pdo-mysql=mysqlnd
       --with-pic
       --with-png-dir=#{Formula["libpng"].opt_prefix}
