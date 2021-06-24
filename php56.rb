@@ -140,7 +140,7 @@ class Php56 < Formula
       --with-mysqli=mysqlnd
       --with-mysql=mysqlnd
       --with-ndbm#{headers_path}
-      --with-openssl-dir=/usr/local/Cellar/openssl@1.0/1.0.2u
+      --with-openssl-dir=#{Formula["openssl@1.0"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pic
       --with-png-dir=#{Formula["libpng"].opt_prefix}
@@ -170,9 +170,9 @@ class Php56 < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php-fpm.log").exist?
-      (var/"log").mkpath
-      touch var/"log/php-fpm.log"
+    unless (var/"log/php/php-fpm-56.log").exist?
+      (var/"log/php").mkpath
+      touch var/"log/php/php-fpm-56.log"
     end
   end
 

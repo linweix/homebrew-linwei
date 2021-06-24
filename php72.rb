@@ -1,4 +1,4 @@
-class Php < Formula
+class Php72 < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
@@ -197,9 +197,9 @@ class Php < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php-fpm.log").exist?
-      (var/"log").mkpath
-      touch var/"log/php-fpm.log"
+    unless (var/"log/php/php-fpm-72.log").exist?
+      (var/"log/php").mkpath
+      touch var/"log/php/php-fpm-72.log"
     end
   end
 
@@ -307,7 +307,7 @@ class Php < Formula
           <key>WorkingDirectory</key>
           <string>#{var}</string>
           <key>StandardErrorPath</key>
-          <string>#{var}/log/php-fpm.log</string>
+          <string>#{var}/log/php/php-fpm-72.log</string>
         </dict>
       </plist>
     EOS
