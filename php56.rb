@@ -29,8 +29,8 @@ class Php56 < Formula
   depends_on "libpng"
 #   depends_on "libpq"
 #   depends_on "libtool"
-#   depends_on "libzip"
-#   depends_on "mcrypt"
+  depends_on "libzip"
+  depends_on "mcrypt"
 #   depends_on "openldap"
   depends_on "openssl"
 #   depends_on "pcre"
@@ -135,6 +135,7 @@ class Php56 < Formula
       --with-libedit#{headers_path}
       --with-libxml-dir#{headers_path}
       --with-libzip=#{Formula["libzip"].opt_prefix}
+      --with-mcrypt=#{Formula["mcrypt"].opt_prefix}
       --with-mhash#{headers_path}
       --with-mysql-sock=/tmp/mysql.sock
       --with-mysqli=mysqlnd
