@@ -170,9 +170,9 @@ class Php56 < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php/php-fpm-56.log").exist?
-      (var/"log/php").mkpath
-      touch var/"log/php/php-fpm-56.log"
+    unless (var/"log/php56/php-fpm.log").exist?
+      (var/"log/php56").mkpath
+      touch var/"log/php56/php-fpm.log"
     end
   end
 
@@ -283,7 +283,7 @@ class Php56 < Formula
         <key>WorkingDirectory</key>
         <string>#{var}</string>
         <key>StandardErrorPath</key>
-        <string>#{var}/log/php-fpm.log</string>
+        <string>#{var}/log/php/php-fpm-56.log</string>
       </dict>
     </plist>
   EOS
