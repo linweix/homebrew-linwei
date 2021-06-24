@@ -141,7 +141,7 @@ class Php56 < Formula
       --with-mysqli=mysqlnd
       --with-mysql=mysqlnd
       --with-ndbm#{headers_path}
-      --with-openssl-dir=#{Formula["openssl@1.0"].opt_prefix}
+      --with-openssl=#{Formula["openssl@1.0"].opt_prefix}
       --with-pdo-mysql=mysqlnd
       --with-pic
       --with-png-dir=#{Formula["libpng"].opt_prefix}
