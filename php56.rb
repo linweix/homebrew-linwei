@@ -171,9 +171,9 @@ class Php56 < Formula
     end
     config_path.install config_files
 
-    unless (var/"log/php56/php-fpm.log").exist?
-      (var/"log/php56").mkpath
-      touch var/"log/php56/php-fpm.log"
+    unless (var/"log/php/php-fpm-56.log").exist?
+      (var/"log/php").mkpath
+      touch var/"log/php/php-fpm-56.log"
     end
   end
 
